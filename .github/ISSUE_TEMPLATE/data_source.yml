@@ -1,6 +1,8 @@
 name: 新增数据源
+description: 推荐一个公开接口，供工具桥的接口清单收录。
 about: 提交一个新的接口清单数据源
 labels: ["data-source"]
+title: "[数据源] "
 body:
   - type: input
     id: name
