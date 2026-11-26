@@ -1,0 +1,73 @@
+name: 新增数据源
+about: 提交一个新的接口清单数据源
+labels: ["data-source"]
+body:
+  - type: input
+    id: name
+    attributes:
+      label: 接口名称
+      description: 请填写一个能识别该接口的名字。
+      placeholder: 例如 Open-Meteo 天气预报
+    validations:
+      required: true
+  - type: input
+    id: category
+    attributes:
+      label: 接口类别
+      description: 例如 天气/地理、动画/漫画、搜索、开发。
+      placeholder: 天气/地理
+    validations:
+      required: true
+  - type: input
+    id: template
+    attributes:
+      label: 接口模板 URL
+      description: 可变参数用 {关键词}、{ID} 这类占位符表示。
+      placeholder: https://example.com/api?query={关键词}
+    validations:
+      required: true
+  - type: dropdown
+    id: method
+    attributes:
+      label: 请求方法
+      options:
+        - GET
+        - POST
+    validations:
+      required: true
+  - type: dropdown
+    id: status
+    attributes:
+      label: 当前状态
+      options:
+        - ok
+        - ok_proxy
+        - key
+        - unstable
+        - blocked
+    validations:
+      required: true
+  - type: textarea
+    id: note
+    attributes:
+      label: 用途和返回字段
+      description: 简单说明能查什么，以及返回里有哪些关键字段。
+      placeholder: 查询城市天气，返回 temperature_2m 和 weather_code。
+    validations:
+      required: true
+  - type: textarea
+    id: auth
+    attributes:
+      label: 认证 / 限流说明
+      description: 是否需要 Key，匿名访问有没有限制。
+      placeholder: 免费匿名访问，每小时 60 次。
+    validations:
+      required: false
+  - type: textarea
+    id: contact
+    attributes:
+      label: 联系方式（可选）
+      description: 如果希望被记入贡献者，可填写 GitHub 用户名。
+      placeholder: GitHub 用户名
+    validations:
+      required: false

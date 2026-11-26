@@ -1,0 +1,337 @@
+{
+  "enabled": {
+    "type": "bool",
+    "default": true,
+    "description": "总开关：是否启用工具桥",
+    "hint": "关掉后插件完全不接管对话。想临时停用时再关，日常保持开启即可。"
+  },
+  "tool_provider_id": {
+    "type": "string",
+    "default": "",
+    "_special": "select_provider",
+    "description": "第 1 步 · 工具模型",
+    "hint": "第 1 步：选一个已经加载、支持函数调用（tool call）的文本模型，由它替你去查接口。留空会退回用当前对话模型，而对话模型通常不支持函数调用，等于工具桥没开。",
+    "obvious_hint": true
+  },
+  "judge_mode": {
+    "type": "string",
+    "default": "llm",
+    "options": [
+      "llm",
+      "decision",
+      "cloudflare",
+      "always",
+      "never"
+    ],
+    "labels": [
+      "LLM 判断",
+      "AstrBot 判断提供商",
+      "Cloudflare clef 决策",
+      "始终需要工具（每轮都会调用）",
+      "无需工具（关闭查询）"
+    ],
+    "description": "第 2 步 · 什么时候才动用工具",
+    "hint": "第 2 步：闲聊不该花钱去查接口，只有真的要查资料的消息才启动工具桥。默认「LLM 判断」最省心；「总是调用工具」每轮都查，适合专门做查询的机器人；「从不调用工具」等于关掉查询。"
+  },
+  "judge_provider_id": {
+    "type": "string",
+    "default": "",
+    "_special": "select_provider",
+    "description": "第 2 步 · 判断模型",
+    "hint": "第 2 步：只用来判断「要不要查资料」，可以和工具模型不是同一个。留空表示复用第 1 步的工具模型。Cloudflare 判断时它只作 Cloudflare 失败后的备用。",
+    "condition": {
+      "judge_mode": [
+        "llm",
+        "decision",
+        "cloudflare"
+      ]
+    }
+  },
+  "cloudflare_account_id": {
+    "type": "string",
+    "default": "",
+    "description": "第 3 步 · Cloudflare 账户 ID",
+    "hint": "第 3 步：只有判断方式选了「Cloudflare clef 决策」才需要填。Cloudflare 控制台里的账户 ID，32 位十六进制。",
+    "condition": {
+      "judge_mode": "cloudflare"
+    }
+  },
+  "cloudflare_api_token": {
+    "type": "string",
+    "default": "",
+    "description": "第 3 步 · Cloudflare API 令牌",
+    "hint": "第 3 步：只有判断方式选了「Cloudflare clef 决策」才需要填。令牌需要 Workers AI 权限，只发往 Cloudflare 官方接口，不写进插件日志；但仍要妥善保管 AstrBot 插件配置文件。",
+    "condition": {
+      "judge_mode": "cloudflare"
+    }
+  },
+  "cloudflare_decision_model": {
+    "type": "string",
+    "default": "clef",
+    "options": [
+      "clef",
+      "clef-flash",
+      "clef-omni"
+    ],
+    "labels": [
+      "clef",
+      "clef-flash",
+      "clef-omni"
+    ],
+    "description": "第 3 步 · Cloudflare 决策模型",
+    "hint": "第 3 步：一般保持 clef。clef-flash 更快更省，clef-omni 更全面。它返回的是概率，用第 2 步的判断阈值来决定要不要用工具。",
+    "condition": {
+      "judge_mode": "cloudflare"
+    }
+  },
+  "judge_threshold": {
+    "type": "float",
+    "default": 0.5,
+    "description": "第 2 步 · 判断阈值",
+    "hint": "第 2 步：0 到 1 的概率线。判断结果达到这个值就算「需要工具」。只有「AstrBot 判断提供商」和「Cloudflare clef」两种方式用得上，默认 0.5。",
+    "condition": {
+      "judge_mode": [
+        "decision",
+        "cloudflare"
+      ]
+    }
+  },
+  "judge_error_policy": {
+    "type": "string",
+    "default": "skip",
+    "options": [
+      "skip",
+      "run_tools"
+    ],
+    "labels": [
+      "判断失败就跳过（省费用）",
+      "判断失败仍调用工具"
+    ],
+    "description": "第 2 步 · 判断失败怎么办",
+    "hint": "第 2 步：判断服务出错或超时时，是直接跳过（省钱，但可能漏掉这次查询），还是仍然调用工具（更稳，但每次都花钱）。",
+    "condition": {
+      "judge_mode": [
+        "llm",
+        "decision",
+        "cloudflare"
+      ]
+    }
+  },
+  "judge_timeout": {
+    "type": "int",
+    "default": 3,
+    "description": "第 2 步 · 判断最多等几秒",
+    "hint": "第 2 步：1 到 30 秒。判断超时会按「判断失败怎么办」处理。明确要查资料的消息会直接进入接口阶段，不等判断。",
+    "condition": {
+      "judge_mode": [
+        "llm",
+        "decision",
+        "cloudflare"
+      ]
+    }
+  },
+  "hide_tools_from_main_model": {
+    "type": "bool",
+    "default": true,
+    "description": "清除对话模型自带的工具",
+    "hint": "保持开启。自动移除 tools 定义、工具角色消息、历史工具调用结果，以及 system 里的工具提示；用户发的消息不受影响。"
+  },
+  "tool_prompt_keep_list": {
+    "type": "list",
+    "default": [],
+    "description": "保留提示词的工具",
+    "hint": "只有上面的清除开关开启时生效。每行一个工具名，支持前缀通配（例如 web_*）。这里列出的工具会保留 tools 定义和提到它的提示词，不会被清除。"
+  },
+  "force_route": {
+    "type": "bool",
+    "default": true,
+    "description": "第 4 步 · 按类别直达接口",
+    "hint": "第 4 步：命中天气、番剧、影视这类问题时，程序直接调用对应接口预抓取，不浪费搜索轮次。关掉只是取消预抓取，工具模型仍然会先看接口清单。"
+  },
+  "url_auto_fetch": {
+    "type": "bool",
+    "default": true,
+    "description": "第 4 步 · 自动抓取消息里的链接",
+    "hint": "第 4 步：消息里出现 http/https 链接时，先直接抓取网页正文再交给工具模型分析，不用先搜索一遍。"
+  },
+  "url_auto_fetch_max": {
+    "type": "int",
+    "default": 3,
+    "description": "第 4 步 · 单条消息最多抓几个链接",
+    "hint": "第 4 步：1 到 5，避免一条消息里塞太多链接导致超时。"
+  },
+  "http_tool_proxy": {
+    "type": "string",
+    "default": "",
+    "description": "第 4 步 · HTTP 代理（可留空）",
+    "hint": "第 4 步：只有这台机器直连不上目标网站时才需要，例如 http://127.0.0.1:7890。留空表示直连。只影响网页抓取和网址探测。"
+  },
+  "tmdb_api_key": {
+    "type": "string",
+    "default": "3fd2be6f0c70a2a598f084ddfb75487c",
+    "description": "TMDB API Key",
+    "hint": "默认已内置公开示例 v3 Key，可直接用于影视搜索；遇到限流或失效时，换成自己的 TMDB v3 Key。"
+  },
+  "tool_site_hints_enabled": {
+    "type": "bool",
+    "default": true,
+    "description": "注入常用数据源提示",
+    "hint": "开启后把下面的数据源清单追加到工具模型提示词；关闭则完全不注入。"
+  },
+  "api_catalog_enabled": {
+    "type": "bool",
+    "default": true,
+    "description": "注入实测可用接口清单",
+    "hint": "把实测可用的 GET 数据源全部注入给工具模型；需 Key、不稳定和不可用的条目只在控制台里做诊断展示。"
+  },
+  "tool_site_hints_direct": {
+    "type": "text",
+    "default": "【按类别强制路由】命中以下类别时，第一步必须用对应接口，不要先用 web_search：\n· 动画/番剧/新番/游戏/漫画/轻小说 → Bangumi：https://api.bgm.tv/search/subject/关键词?type=2&responseGroup=small&max_results=10（关键词做 URL 编码）\n· 具体动画更新时间/下一集 → Bangumi 分集：https://api.bgm.tv/v0/episodes?subject_id=ID&type=0&limit=100&offset=0\n· 天气 → open-meteo：https://api.open-meteo.com/v1/forecast?latitude=纬度&longitude=经度&current=temperature_2m,weather_code\n· 汇率 → https://open.er-api.com/v6/latest/CNY\n· 股票/指数 → https://qt.gtimg.cn/q=sh000001,sz399001\n· 热搜/新闻 → https://top.baidu.com/board?tab=realtime ；政务 → https://www.gov.cn/\n· 代码/仓库 → https://api.github.com/search/repositories?q=关键词&per_page=5\n· 学术 → https://api.crossref.org/works?query=关键词&rows=3\n· 加密货币 → https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=cny\n对应接口返回 4xx/5xx、超时或明显无结果时，才改用 web_search；不要因为“感觉搜索更快”就跳过。",
+    "description": "按类别强制路由的数据源",
+    "hint": "把消息意图匹配到的类别固定到对应接口，避免多绕一次搜索。TMDB 的动态 Key 由接口清单统一提供。"
+  },
+  "tool_site_hints_proxy": {
+    "type": "text",
+    "default": "Bangumi 番剧搜索：https://api.bgm.tv/search/subject/关键词?type=2&responseGroup=small\nBangumi 详情：https://api.bgm.tv/v0/subjects/ID\n加密货币：https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=cny\n中文维基：https://zh.wikipedia.org/w/api.php?action=query&format=json&list=search&srsearch=关键词",
+    "description": "需要代理的数据源",
+    "hint": "只有填写了 HTTP 代理地址时才注入，避免直连超时；TMDB 由接口清单统一提供。"
+  },
+  "http_tool_timeout": {
+    "type": "int",
+    "default": 20,
+    "description": "HTTP 抓取工具超时（秒）",
+    "hint": "工具模型直接访问网页或接口时的等待上限。"
+  },
+  "http_tool_max_chars": {
+    "type": "int",
+    "default": 4000,
+    "description": "HTTP 抓取返回上限（字符）",
+    "hint": "抓到的网页正文最多保留多少字符，避免撑爆上下文。"
+  },
+  "max_steps": {
+    "type": "int",
+    "default": 6,
+    "description": "第 5 步 · 工具模型最多跑几轮",
+    "hint": "第 5 步：工具模型连续调用工具的轮数上限，1 表示只允许一轮。默认 6 轮一般够用，机器慢就调小。"
+  },
+  "tool_call_timeout": {
+    "type": "int",
+    "default": 60,
+    "description": "单个工具超时（秒）",
+    "hint": "一次工具调用最多等多久，超时按失败处理。"
+  },
+  "workflow_timeout": {
+    "type": "int",
+    "default": 120,
+    "description": "第 5 步 · 整轮超时（秒）",
+    "hint": "第 5 步：从接口预抓取到搜索补充结束的总时限。超时就放弃本轮工具注入，由对话模型直接回答。"
+  },
+  "max_concurrent": {
+    "type": "int",
+    "default": 3,
+    "description": "最大并发会话数",
+    "hint": "同时处理工具桥的会话上限，避免高峰期把工具模型打满。"
+  },
+  "max_context_messages": {
+    "type": "int",
+    "default": 6,
+    "description": "带给工具模型的最近消息条数",
+    "hint": "帮助工具模型理解「那明天呢」这类指代；设为 0 表示不传历史。"
+  },
+  "max_context_chars": {
+    "type": "int",
+    "default": 800,
+    "description": "每条历史消息最大字符数",
+    "hint": "单条历史消息最多带多少字符给工具模型。"
+  },
+  "max_tool_result_chars": {
+    "type": "int",
+    "default": 3000,
+    "description": "单个工具结果最大字符数",
+    "hint": "一次工具返回的内容最多保留多少字符。"
+  },
+  "max_inject_chars": {
+    "type": "int",
+    "default": 6000,
+    "description": "第 5 步 · 注入字数上限",
+    "hint": "第 5 步：工具记录加工具模型结论的总字符上限，超出会截断。想让对话模型拿到更完整的事实就调大。"
+  },
+  "min_prompt_chars": {
+    "type": "int",
+    "default": 0,
+    "description": "短消息跳过阈值",
+    "hint": "消息长度小于这个值时直接跳过工具桥，一次模型都不调用。0 表示不启用。"
+  },
+  "force_regex": {
+    "type": "list",
+    "default": [
+      "天气|气温|温度|降雨|下雨|下雪|降雪|台风|风力|湿度|空气质量|雾霾|紫外线",
+      "穿什么|穿衣|带伞|要不要带伞",
+      "新闻|头条|热搜|时事|发生了什么",
+      "汇率|股价|金价|油价|比特币|行情|价格多少",
+      "航班|机票|火车票|高铁|快递|物流",
+      "搜索|搜一下|搜下|查一下|查下|查询|帮我查|帮忙查|找一下|找找",
+      "官网|官方网站|最新消息|实时"
+    ],
+    "description": "明确外部查询的关键词正则",
+    "hint": "命中就直接进入接口阶段，不允许判断成闲聊；接口数据不足才搜索。never 模式仍然关闭查询。"
+  },
+  "skip_regex": {
+    "type": "list",
+    "default": [],
+    "description": "跳过正则",
+    "hint": "消息命中任一正则就跳过工具桥，例如 ^(哈哈|早安|晚安)。"
+  },
+  "tool_allowlist": {
+    "type": "list",
+    "default": [],
+    "description": "工具白名单",
+    "hint": "留空表示允许全部工具；支持前缀通配，例如 web_*。"
+  },
+  "tool_denylist": {
+    "type": "list",
+    "default": [
+      "send_message_to_user",
+      "transfer_to_*",
+      "astrbot_execute_shell",
+      "astrbot_shell_session",
+      "astrbot_execute_python"
+    ],
+    "description": "工具黑名单",
+    "hint": "默认屏蔽发送消息、子智能体接管和 AstrBot 自带的 Shell/Python 工具；支持前缀通配，例如 astrbot_* 可屏蔽全部系统自带工具。"
+  },
+  "judge_system_prompt": {
+    "type": "text",
+    "default": "",
+    "description": "判断器 System Prompt",
+    "hint": "留空使用插件内置提示词；填了会完全替换内置提示词。"
+  },
+  "tool_system_prompt": {
+    "type": "text",
+    "default": "",
+    "description": "工具模型 System Prompt",
+    "hint": "留空使用插件内置提示词；可以在这里限定工具模型的语言和输出格式。"
+  },
+  "inject_header": {
+    "type": "string",
+    "default": "## 工具调用结果（由工具桥自动获取）",
+    "description": "注入区块标题",
+    "hint": "工具结果插进对话时的标题，默认即可。"
+  },
+  "verbose_log": {
+    "type": "bool",
+    "default": false,
+    "description": "详细日志",
+    "hint": "开启后把判断结果、注入长度等写进 info 日志，方便排查问题。"
+  },
+  "strip_prompt_patterns": {
+    "type": "list",
+    "default": [
+      "System instruction — highest priority",
+      "ONLY execution channel",
+      "never claim you lack tools"
+    ],
+    "description": "屏蔽注入的提示词段落",
+    "hint": "命中任一正则的整段提示词会从对话模型的 system 提示和上下文里删除，用于屏蔽其他组件强塞的指令。"
+  }
+}

@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>工具桥控制台</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">桥</span>
+        <div class="brand-copy">
+          <div class="brand-line">
+            <h1>工具桥</h1>
+            <span id="bridge-version" class="version">—</span>
+          </div>
+          <p>接口优先的数据管理控制台</p>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <span id="status-badge" class="badge">加载中</span>
+        <button id="theme-toggle" class="theme-toggle" type="button" title="切换深色 / 浅色" aria-label="切换深色 / 浅色">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="18.36" x2="5.64" y2="19.78"></line><line x1="18.36" y1="4.22" x2="19.78" y2="5.64"></line></svg>
+        </button>
+        <button id="refresh" class="button ghost compact" type="button">
+          <span aria-hidden="true">↻</span> 刷新
+        </button>
+      </div>
+    </header>
+
+    <div class="workspace">
+      <nav class="navigation" aria-label="控制台页面">
+        <p class="nav-caption">开始</p>
+        <button class="nav-item active" type="button" data-view="guide" aria-current="page">
+          <span class="nav-symbol" aria-hidden="true">✦</span><span class="nav-label">快速上手</span>
+        </button>
+        <button class="nav-item" type="button" data-view="home">
+          <span class="nav-symbol" aria-hidden="true">◉</span><span class="nav-label">运行概览</span>
+        </button>
+        <p class="nav-caption">配置</p>
+        <button class="nav-item" type="button" data-view="basic">
+          <span class="nav-symbol" aria-hidden="true">✓</span><span class="nav-label">基础设置</span>
+        </button>
+        <button class="nav-item" type="button" data-view="catalog">
+          <span class="nav-symbol" aria-hidden="true">≡</span><span class="nav-label">接口清单</span>
+        </button>
+        <button class="nav-item" type="button" data-view="advanced">
+          <span class="nav-symbol" aria-hidden="true">⚙</span><span class="nav-label">高级设置</span>
+        </button>
+      </nav>
+
+      <main class="main-content">
+        <div id="message" class="message" role="status" aria-live="polite"></div>
+
+        <div id="view-guide" class="view" data-page="guide">
+          <section class="page-section guide-hero" aria-labelledby="guide-title">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">快速上手</p>
+                <h2 id="guide-title" tabindex="-1">五步配好工具桥</h2>
+                <p class="subtle">每一步都写清楚「为什么要设」和「怎么填」。照着填完，再到运行概览打开开关。</p>
+              </div>
+              <div class="heading-actions">
+                <button id="save-guide" class="button primary" type="button" disabled>保存全部修改</button>
+              </div>
+            </div>
+            <div class="progress-panel">
+              <div class="progress-line">
+                <strong>设置进度</strong>
+                <span id="guide-progress-text" class="subtle">正在读取…</span>
+              </div>
+              <div class="progress-track"><div id="guide-progress-bar" class="progress-bar"></div></div>
+              <p id="guide-progress-note" class="progress-note subtle">正在检查配置…</p>
+            </div>
+          </section>
+
+          <div id="guide-steps" class="guide-steps"></div>
+
+          <section class="page-section guide-done" aria-labelledby="guide-done-title">
+            <div class="section-heading compact-heading">
+              <div>
+                <p class="eyebrow">收尾</p>
+                <h2 id="guide-done-title">全部填完了？</h2>
+                <p class="subtle">到运行概览确认状态是「运行中」，再发一条需要查资料的消息试试。</p>
+              </div>
+              <button id="guide-goto-home" class="button secondary" type="button">去运行概览</button>
+            </div>
+          </section>
+        </div>
+
+        <div id="view-home" class="view" data-page="home" hidden>
+          <section class="page-section callout-section" id="home-callout" hidden aria-labelledby="home-callout-title">
+            <div>
+              <p class="eyebrow">还没配完</p>
+              <h2 id="home-callout-title">先按向导填好关键几项</h2>
+              <p id="home-callout-text" class="subtle"></p>
+            </div>
+            <button id="go-guide" class="button primary" type="button">去快速上手</button>
+          </section>
+
+          <section class="page-section run-section" aria-labelledby="home-title">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">当前状态</p>
+                <h2 id="home-title" tabindex="-1">让模型先查接口，再决定下一步</h2>
+                <p id="runtime-explanation" class="subtle">正在读取运行状态…</p>
+              </div>
+              <button id="toggle" class="button primary" type="button" disabled>开启工具桥</button>
+            </div>
+            <div class="status-strip" aria-label="核心运行信息">
+              <div><span>工具模型</span><strong id="tool-provider">加载中</strong></div>
+              <div><span>取数顺序</span><strong id="retrieval-policy">—</strong></div>
+              <div><span>网络代理</span><strong id="http-proxy">—</strong></div>
+              <div><span>激活工具</span><strong id="tool-count">—</strong></div>
+            </div>
+            <p id="judge-policy" class="subtle">正在读取需求决策方式…</p>
+          </section>
+
+          <section class="page-section" aria-labelledby="quick-model-title">
+            <div class="section-heading compact-heading">
+              <div><h2 id="quick-model-title">选择工具模型</h2><p class="subtle">选择已加载且支持工具调用的文本模型。</p></div>
+              <span class="section-label">常用设置</span>
+            </div>
+            <div class="quick-model-row">
+              <div class="quick-model-control">
+                <label class="sr-only" for="home-tool-provider">工具模型</label>
+                <select id="home-tool-provider" disabled><option>正在读取模型列表…</option></select>
+              </div>
+              <button id="save-home-model" class="button primary" type="button" disabled>保存模型</button>
+            </div>
+            <p id="home-model-note" class="field-note">模型列表来自当前 AstrBot 已加载的提供商。</p>
+          </section>
+
+          <section class="page-section" aria-labelledby="flow-title">
+            <div class="section-heading compact-heading"><h2 id="flow-title">需要查询时：接口优先流程</h2><span class="flow-badge">固定顺序</span></div>
+            <ol class="retrieval-flow">
+              <li><span class="step-number">1</span><div><strong>匹配接口</strong><span>优先查找可用的数据源</span></div></li>
+              <li><span class="step-number">2</span><div><strong>获取事实</strong><span>由工具模型执行 HTTP 工具</span></div></li>
+              <li><span class="step-number">3</span><div><strong>不足才搜索</strong><span>数据足够时不再搜索</span></div></li>
+            </ol>
+          </section>
+
+          <section class="page-section" aria-labelledby="retrieval-title">
+            <div class="section-heading compact-heading">
+              <div><h2 id="retrieval-title">一键测试真实流程</h2><p class="subtle">执行与实际对话相同的接口优先流程，不发送聊天消息。</p></div>
+            </div>
+            <label class="field-label" for="retrieval-prompt">测试问题</label>
+            <textarea id="retrieval-prompt" maxlength="500" rows="2">查询 AstrBot 的最新版本</textarea>
+            <div class="command-row"><button id="test-retrieval" class="button primary" type="button">开始测试</button><span class="subtle">接口 → 数据检查 → 按需搜索</span></div>
+            <div id="retrieval-result" class="result retrieval-result" aria-live="polite">尚未测试</div>
+          </section>
+
+          <section class="page-section stats-section" aria-labelledby="stats-title">
+            <div class="section-heading compact-heading"><h2 id="stats-title">运行概览</h2><span class="subtle">本次插件运行累计</span></div>
+            <div class="stats">
+              <div><strong id="stat-requests">0</strong><span>处理请求</span></div>
+              <div><strong id="stat-api">0</strong><span>接口阶段</span></div>
+              <div><strong id="stat-fallbacks">0</strong><span>搜索补充</span></div>
+              <div><strong id="stat-errors">0</strong><span>错误</span></div>
+            </div>
+          </section>
+        </div>
+
+        <div id="view-basic" class="view" data-page="basic" hidden>
+          <section class="page-section" aria-labelledby="basic-title">
+            <div class="section-heading">
+              <div><p class="eyebrow">日常使用</p><h2 id="basic-title" tabindex="-1">基础设置</h2><p class="subtle">只保留常用选项，未修改的内容不会提交。</p></div>
+              <button id="save-basic" class="button primary" type="button" disabled>保存基础设置</button>
+            </div>
+            <div id="basic-settings" class="settings simple-settings" aria-live="polite">加载中…</div>
+          </section>
+        </div>
+
+        <div id="view-catalog" class="view" data-page="catalog" hidden>
+          <section class="page-section" aria-labelledby="catalog-title">
+            <div class="section-heading">
+              <div><p class="eyebrow">数据源</p><h2 id="catalog-title" tabindex="-1">接口清单</h2><p id="catalog-meta" class="subtle">加载中…</p></div>
+            </div>
+            <div class="catalog-toolbar">
+              <div class="search-control"><label class="sr-only" for="catalog-search">搜索接口</label><input id="catalog-search" type="search" placeholder="搜索名称、用途或网址" autocomplete="off"></div>
+              <div><label class="sr-only" for="catalog-category">接口类别</label><select id="catalog-category"><option value="">全部类别</option></select></div>
+            </div>
+            <div id="catalog-filters" class="catalog-filters" role="group" aria-label="接口状态筛选">
+              <button type="button" class="filter-button" data-filter="all" aria-pressed="false">全部</button>
+              <button type="button" class="filter-button active" data-filter="ok" aria-pressed="true">可用</button>
+              <button type="button" class="filter-button" data-filter="key" aria-pressed="false">需 Key</button>
+              <button type="button" class="filter-button" data-filter="unstable" aria-pressed="false">不稳定</button>
+              <button type="button" class="filter-button" data-filter="blocked" aria-pressed="false">不可用</button>
+            </div>
+            <div class="catalog-command-row">
+              <button id="catalog-ping" class="button secondary" type="button">一键探测</button>
+              <button id="catalog-disable-failed" class="button ghost" type="button" disabled>关闭失败项</button>
+              <a id="contribute-source" class="button ghost compact" href="https://github.com/ssabv/astrbot_plugin_tool_bridge/issues/new?template=data_source.yml" target="_blank" rel="noopener noreferrer">贡献数据源</a>
+              <span id="catalog-ping-result" class="subtle">尚未批量探测。</span>
+            </div>
+            <p class="catalog-note">开关只控制该接口是否注入；关闭状态会保存。“可用 / 代理可用”的 GET 接口才会真正注入。</p>
+            <div id="catalog" class="catalog" aria-live="polite">加载中…</div>
+          </section>
+        </div>
+
+        <div id="view-advanced" class="view" data-page="advanced" hidden>
+          <section class="page-section pointer-card" aria-labelledby="advanced-pointer-title">
+            <div class="section-heading compact-heading">
+              <div>
+                <p class="eyebrow">快速上手已包含</p>
+                <h2 id="advanced-pointer-title">这几项按步骤设置更清楚</h2>
+                <p class="subtle">点任意一步，直接跳到「快速上手」里对应的位置；这里只放需要手动微调的进阶参数。</p>
+              </div>
+            </div>
+            <div id="advanced-guide-links" class="pointer-links"></div>
+          </section>
+
+          <section class="page-section" aria-labelledby="advanced-title">
+            <div class="section-heading">
+              <div><p class="eyebrow">按需调整</p><h2 id="advanced-title" tabindex="-1">高级设置</h2><p class="subtle">密钥留空表示保持原值，保存只提交已修改字段。</p></div>
+              <button id="save-config" class="button primary" type="button" disabled>保存高级设置</button>
+            </div>
+            <div id="settings" class="settings">加载中…</div>
+          </section>
+
+          <section class="page-section diagnostics-section" aria-labelledby="diagnostics-title">
+            <div class="section-heading compact-heading"><div><h2 id="diagnostics-title">独立诊断</h2><p class="subtle">下方按钮只运行诊断；上方决策配置同时用于正常对话。</p></div></div>
+            <details class="disclosure">
+              <summary>判断器诊断<span>仅检查模型判断结果</span></summary>
+              <div class="disclosure-body">
+                <label class="field-label" for="prompt">测试消息</label>
+                <textarea id="prompt" maxlength="500" rows="2">今天天气怎么样</textarea>
+                <button id="test" class="button secondary" type="button">测试判断器</button>
+                <pre id="test-result" class="result" aria-live="polite">尚未测试</pre>
+              </div>
+            </details>
+            <details id="route-diagnostics" class="disclosure">
+              <summary>路由预抓取<span>检查指定类别的数据源</span></summary>
+              <div class="disclosure-body">
+                <label class="field-label" for="route-prompt">测试场景</label>
+                <select id="route-prompt">
+                  <option value="最近有什么新番动画推荐？">新番动画 → Bangumi</option>
+                  <option value="《葬送的芙莉莲》下一集什么时候更新？">动画更新时间 → Bangumi 分集</option>
+                  <option value="最近有什么电影推荐？">电影 → TMDB</option>
+                  <option value="比特币价格多少？">加密货币 → CoinGecko</option>
+                  <option value="北京今天天气怎么样？">天气 → open-meteo</option>
+                </select>
+                <button id="test-route" class="button secondary" type="button">测试预抓取</button>
+                <pre id="diagnostic-result" class="result" aria-live="polite">尚未诊断</pre>
+              </div>
+            </details>
+            <details id="network-diagnostics" class="disclosure">
+              <summary>网络探测<span>检查当前主机能否访问网址</span></summary>
+              <div class="disclosure-body">
+                <label class="field-label" for="probe-url">公网网址</label>
+                <input id="probe-url" type="url" placeholder="https://example.com" autocomplete="off">
+                <button id="probe" class="button secondary" type="button">探测网址</button>
+                <pre id="probe-result" class="result" aria-live="polite">尚未探测</pre>
+              </div>
+            </details>
+          </section>
+
+          <section class="page-section" aria-labelledby="events-title">
+            <div class="section-heading compact-heading"><h2 id="events-title">最近事件</h2><span class="subtle">脱敏记录 · 自动刷新</span></div>
+            <ol id="events" class="events"></ol>
+          </section>
+        </div>
+      </main>
+    </div>
+  </div>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
