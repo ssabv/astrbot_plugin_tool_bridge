@@ -2,7 +2,7 @@ name: astrbot_plugin_tool_bridge
 display_name: 工具桥
 desc: 让对话模型使用外部事实：先匹配并查询接口，数据不足再开放联网搜索，最后注入工具结果。
 short_desc: 给不能调工具的对话模型外挂一个工具模型。
-version: 1.9.27
+version: 1.9.28
 author: DSH
 repo: ""
 astrbot_version: ">=4.5.7"
