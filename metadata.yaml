@@ -1,10 +1,16 @@
 name: astrbot_plugin_tool_bridge
 display_name: 工具桥
-desc: 让对话模型使用外部事实：先匹配并查询接口，数据不足再开放联网搜索，最后注入工具结果。
-short_desc: 给不能调工具的对话模型外挂一个工具模型。
+desc: 接口优先的外部事实注入插件：用独立工具模型查接口和数据，主模型上下文保持纯净，不被工具提示词污染。
+short_desc: 主模型上下文纯净的外部数据工具桥。
 version: 1.9.30
 author: DSH
-repo: ""
+repo: https://github.com/ssabv/astrbot_plugin_tool_bridge
+category: ai_context
+tags:
+  - tools
+  - http
+  - retrieval
+  - web-console
 astrbot_version: ">=4.5.7"
 support_platforms:
   - aiocqhttp
