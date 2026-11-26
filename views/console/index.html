@@ -9,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./style.css">
 </head>
-<body>
+<body data-boot="pending">
   <div class="app-shell">
     <header class="topbar">
       <div class="brand">
@@ -57,6 +57,12 @@
 
       <main class="main-content">
         <div id="message" class="message" role="status" aria-live="polite"></div>
+
+        <section id="boot-loading" class="page-section boot-loading" aria-live="polite">
+          <span class="boot-spinner" aria-hidden="true"></span>
+          <strong>正在加载控制台</strong>
+          <span class="subtle">稍等一下，正在读取当前配置。</span>
+        </section>
 
         <div id="view-guide" class="view" data-page="guide">
           <section class="page-section guide-hero" aria-labelledby="guide-title">

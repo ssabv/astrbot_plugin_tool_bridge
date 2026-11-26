@@ -1279,7 +1279,23 @@ input[type="checkbox"]:checked::after { transform: translateX(1.15rem); backgrou
     box-shadow: var(--shadow-soft);
 }
 
-.catalog-head { display: flex; align-items: center; flex-wrap: wrap; gap: 0.45rem; min-width: 0; }
+.catalog-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    min-width: 0;
+}
+
+.catalog-title {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    flex: 1 1 auto;
+    gap: 0.45rem;
+    min-width: 0;
+}
+
 .catalog-head .badge { padding: 0.1rem 0.5rem; font-size: 0.64rem; }
 .catalog-head .badge::before { display: none; }
 .catalog-head strong { min-width: 0; font-size: 0.86rem; overflow-wrap: anywhere; }
@@ -1287,11 +1303,13 @@ input[type="checkbox"]:checked::after { transform: translateX(1.15rem); backgrou
 .catalog-switch {
     display: inline-flex;
     align-items: center;
+    flex: 0 0 auto;
     gap: 0.4rem;
-    margin-left: auto;
+    margin-left: 0;
     color: var(--text-muted);
     font-size: 0.7rem;
     cursor: pointer;
+    white-space: nowrap;
 }
 .catalog-switch input { width: 2.25rem; min-height: 1.3rem; height: 1.3rem; }
 .catalog-switch span { min-width: 2.4rem; text-align: right; }
@@ -1312,6 +1330,30 @@ input[type="checkbox"]:checked::after { transform: translateX(1.15rem); backgrou
 .catalog-actions { display: flex; justify-content: flex-end; margin-top: 0.45rem; }
 .catalog-actions .button { min-height: 1.85rem; padding: 0.22rem 0.65rem; font-size: 0.72rem; }
 .empty-state { margin: 1.4rem 0; color: var(--text-muted); text-align: center; }
+
+/* 启动过渡：避免已完成向导的设备先闪一帧快速上手。 */
+.boot-loading {
+    display: grid;
+    place-items: center;
+    gap: 0.45rem;
+    min-height: 280px;
+    text-align: center;
+}
+
+.boot-loading strong { font-size: 1.02rem; }
+
+.boot-spinner {
+    width: 2.1rem;
+    height: 2.1rem;
+    border: 3px solid var(--primary-line);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+body[data-boot="pending"] .view { display: none !important; }
 
 /* ---------- 诊断 / 事件 ---------- */
 

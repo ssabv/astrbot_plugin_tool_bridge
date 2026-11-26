@@ -1099,7 +1099,10 @@ function renderCatalog() {
     });
     switchWrap.append(switchInput, document.createElement("span"));
     switchWrap.setAttribute("title", "开启后参与接口清单注入；关闭则临时停用");
-    head.append(badge, title, meta, switchWrap);
+    const titleBox = document.createElement("div");
+    titleBox.className = "catalog-title";
+    titleBox.append(badge, title, meta);
+    head.append(titleBox, switchWrap);
     const code = document.createElement("code");
     code.textContent = item.template || "";
     row.append(head, code);
@@ -1406,6 +1409,8 @@ await bridge.ready();
 await Promise.all([loadConfig(), refresh({ silent: true })]);
 // 初始落点：向导完成后直接进运行概览；未完成才停在快速上手。
 switchView(guideComplete ? "home" : "guide");
+document.body.dataset.boot = "ready";
+$("boot-loading").hidden = true;
 
 setInterval(() => {
   if (document.visibilityState === "visible" && !refreshing) refresh({ silent: true });
