@@ -59,6 +59,8 @@ git clone https://github.com/ssabv/astrbot_plugin_tool_bridge.git astrbot_plugin
 
 然后回到 WebUI 重载插件。
 
+插件使用 `aiohttp` 做接口抓取和 Cloudflare 决策请求。AstrBot 通常已附带该依赖，仓库内的 `requirements.txt` 会在安装/部署时确保其存在。
+
 ## 快速开始
 
 安装后打开「工具桥控制台」，向导会分成五步：
