@@ -147,6 +147,7 @@ let configValues = {};
 let providers = null;
 let toolChoices = [];
 let configLoaded = false;
+let guideComplete = false;
 let refreshing = false;
 let catalogItems = [];
 let catalogVerifiedAt = "";
@@ -561,6 +562,7 @@ function updateGuideState() {
   }
 
   const total = GUIDE_STEPS.length;
+  guideComplete = done === total;
   setText("guide-progress-text", `已完成 ${done} / ${total} 步`);
   const bar = $("guide-progress-bar");
   if (bar) bar.style.width = `${Math.round((done / total) * 100)}%`;
@@ -1402,6 +1404,8 @@ $("refresh").addEventListener("click", async () => {
 
 await bridge.ready();
 await Promise.all([loadConfig(), refresh({ silent: true })]);
+// 初始落点：向导完成后直接进运行概览；未完成才停在快速上手。
+switchView(guideComplete ? "home" : "guide");
 
 setInterval(() => {
   if (document.visibilityState === "visible" && !refreshing) refresh({ silent: true });

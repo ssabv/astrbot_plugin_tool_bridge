@@ -88,6 +88,8 @@ git clone <本插件仓库地址> astrbot_plugin_tool_bridge
 - 输入消息并独立测试判断器（包括 Cloudflare clef），诊断按钮不会执行工具；同一决策配置用于正常对话；
 - 分组设置面板（基本 / 判断器 / 抓取与路由 / 数据源 / 执行限制 / 提示词 / 调试）。
 
+控制台的初始落点会按向导状态判断：五步都完成并保存后，下次进入默认打开「运行概览」；配置不完整时仍默认打开「快速上手」。你也可以随时手动切换页面。
+
 想推荐一个新的数据源时，打开控制台「接口清单」页右上角的「贡献数据源」按钮，会跳到
 [提交模板](https://github.com/ssabv/astrbot_plugin_tool_bridge/issues/new?template=data_source.yml)。
 
