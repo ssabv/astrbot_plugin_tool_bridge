@@ -2,7 +2,7 @@ name: astrbot_plugin_tool_bridge
 display_name: 工具桥
 desc: 接口优先的外部事实注入插件：用独立工具模型查接口和数据，主模型上下文保持纯净，不被工具提示词污染。
 short_desc: 主模型上下文纯净的外部数据工具桥。
-version: 1.9.31
+version: 1.9.34
 author: DSH
 repo: https://github.com/ssabv/astrbot_plugin_tool_bridge
 category: ai_context

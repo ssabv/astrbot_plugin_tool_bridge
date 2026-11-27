@@ -1244,16 +1244,15 @@ function renderRetrievalResult(result) {
   const trace = Array.isArray(result.trace) ? result.trace : [];
   const apiPhase = trace.find((phase) => phase.phase === "api");
   const decision = trace.find((phase) => phase.phase === "decision");
-  const phaseLabel = phase => ({ decision: "需求决策", api: "接口阶段", search_fallback: "搜索补充" }[phase.phase] || phase.phase);
-  const searched = trace.some((phase) => phase.phase === "search_fallback");
-  const searchFailed = trace.some((phase) => phase.phase === "search_fallback" && phase.status === "failed");
+  const phaseLabel = phase => ({ decision: "需求决策", api: "接口阶段", search_fallback: "工具阶段" }[phase.phase] || phase.phase);
+  const toolPhase = trace.find((phase) => phase.phase === "search_fallback");
   const verdict = apiPhase?.verdict;
   let headline = "真实流程测试完成";
   if (decision?.need === false) headline = "决策已放行，未调用接口或搜索模型";
   else if (verdict === "complete") headline = "接口数据足够，无需搜索";
   else if (verdict === "not_needed") headline = "无需外部数据，已结束取数";
-  else if (searched) headline = searchFailed ? "接口信息不足，搜索补充未成功" : "接口信息不足，已完成搜索补充";
-  else if (verdict === "insufficient" || verdict === "unverified") headline = "接口信息不足，未取得搜索补充";
+  else if (toolPhase) headline = toolPhase.status === "failed" ? "工具阶段执行失败" : "已完成工具阶段";
+  else if (verdict === "insufficient" || verdict === "unverified") headline = "接口信息不足，未取得补充结果";
 
   box.classList.remove("error");
   box.replaceChildren();
@@ -1272,7 +1271,8 @@ function renderRetrievalResult(result) {
     const statusLabels = { running: "正在执行", finished: "已完成", failed: "执行失败" };
     const verdictLabels = {
       complete: "数据足够回答，不开放搜索",
-      insufficient: "数据不足，继续搜索补充",
+      insufficient: "数据不足，尝试工具补充",
+      use_tool: "已规划交接给匹配的工具",
       not_needed: "无需外部数据",
       unverified: "未能确认数据完整性",
     };
